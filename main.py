@@ -1,5 +1,6 @@
 import requests
 import pprint
+from termcolor import colored
 from bs4 import BeautifulSoup
 
 URL = "https://www.spiegel.de/schlagzeilen/"
@@ -15,4 +16,7 @@ for article in articles_cards:
     title = article.find("span", {"class": "mr-6"}).text
     link = article.find("a")["href"]
     articles.append({"title": title, "link": link})
-pprint.pprint(articles)
+
+for article in articles:
+    print(colored(article["title"], "green"))
+    print(colored(article["link"], "magenta"))
