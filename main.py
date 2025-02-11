@@ -7,12 +7,16 @@ import datetime
 from pathlib import Path
 import time
 import os
+import logging
 
 class SpiegelScrape:
     def __init__(self, filename):
         self.URL = "https://www.spiegel.de/schlagzeilen/"
         self.articles = []
         self.filename = filename
+        logging.basicConfig(format='[%(asctime)s][%(name)s][%(levelname)s]: %(message)s', level=logging.INFO)
+        self.logger = logging.getLogger("SpiegelScrape")
+        self.logger.setLevel(logging.INFO)
 
 
     def scrape(self):
@@ -41,8 +45,6 @@ class SpiegelScrape:
             "articles": self.articles
         }
 
-        old = {}
-
         if Path(self.filename).is_file():
             with open(self.filename, "r") as f:
                 old = json.loads(f.read())
@@ -56,7 +58,14 @@ class SpiegelScrape:
         with open(self.filename, "w") as f:
             old["data"].append(new)
             f.write(json.dumps(old))
+
+    def scrape_loop(self, sleep_time):
+        while True:
+            self.scrape()
+            self.save_to_json()
+            self.logger.info("Scraping finished")
+            time.sleep(sleep_time)
+
         
 sp = SpiegelScrape("article_index.json")
-sp.scrape()
-sp.save_to_json()
+sp.scrape_loop(10)
